@@ -1,2 +1,0 @@
-# sfs
-Shape-from-shading
