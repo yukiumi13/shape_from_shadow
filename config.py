@@ -1,6 +1,8 @@
+from model.autoencoders import AutoEncoderCfg
+
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Literal, Optional, Type, TypeVar
+from typing import Literal, Optional, Type, TypeVar, Any
 
 from dacite import Config, from_dict
 from omegaconf import DictConfig, OmegaConf
@@ -30,7 +32,8 @@ class TrainerCfg:
 class RootCfg:
     wandb: dict
     mode: Literal["train", "test"]
-    model: Any
+    autoencoder: AutoEncoderCfg
+    render_pipeline: Any
     checkpointing: CheckpointingCfg
     trainer: TrainerCfg
     seed: int

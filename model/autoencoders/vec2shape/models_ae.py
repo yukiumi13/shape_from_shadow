@@ -11,6 +11,7 @@ from einops import rearrange, repeat
 from torch_cluster import fps
 
 from timm.layers import DropPath
+from typing import Union
 
 def exists(val):
     return val is not None
@@ -395,7 +396,6 @@ class KLAutoEncoder(nn.Module):
 
     def forward(self, pc, queries):
         kl, x = self.encode(pc)
-
         o = self.decode(x, queries).squeeze(-1)
 
         # return o.squeeze(-1), kl
@@ -473,3 +473,10 @@ def ae_d128_m512(N=2048):
 
 def ae_d64_m512(N=2048):
     return create_autoencoder(dim=64, M=512, N=N, determinisitc=True)
+
+# MOD: add make func
+def make_s2vs_ae(latent_num: int, 
+           latent_dim: int, 
+           determinisitc:bool = False) -> Union[KLAutoEncoder, AutoEncoder]:
+    
+    return create_autoencoder(dim=512, M=latent_num, N=2048, latent_dim=latent_dim, determinisitc=determinisitc)

@@ -21,5 +21,5 @@ class OptimizationVariables(TypedDict, total=False):
 
 @dataclass
 class OccVolume:
-    grid: Float[Tensor, "*batch x y z"]
-    occ: Float[Tensor, "*batch x y z"]
+    grid: Float[Tensor, "*batch x y z coord"]
+    occ_logits: Float[Tensor, "*batch x y z"] # logits \in (-inf, inf)
