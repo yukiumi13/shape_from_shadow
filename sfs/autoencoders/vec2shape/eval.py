@@ -1,8 +1,8 @@
 from tqdm import tqdm
 from pathlib import Path
-import util.misc as misc
-from util.shapenet import ShapeNet, category_ids
-import models_ae
+from .util import misc
+from .util.shapenet import ShapeNet, category_ids
+from . import models_ae
 import mcubes
 import trimesh
 from scipy.spatial import cKDTree as KDTree
@@ -20,11 +20,11 @@ parser = argparse.ArgumentParser()
 parser.add_argument('--model', default='kl_d512_m512_l8', type=str,
                     metavar='MODEL', help='Name of model to train')
 parser.add_argument(
-    '--pth', default='output/ae/kl_d512_m512/checkpoint-199.pth', type=str)
-parser.add_argument('--device', default='cuda',
+    '--pth', default='/home/yangli/sfs/checkpoints/pretrained/ae_kl_d512_m512_l8.pth', type=str)
+parser.add_argument('--device', default='cuda:0',
                     help='device to use for training / testing')
 parser.add_argument('--seed', default=0, type=int)
-parser.add_argument('--data_path', type=str, required=True,
+parser.add_argument('--data_path', default='/mntdata/shapenet', type=str,
                     help='dataset path')
 args = parser.parse_args()
 
@@ -85,11 +85,9 @@ def main():
                     surface[0].numpy().shape[0], 2048, replace=False)
 
                 surface2048 = surface[0][ind][None]
-
                 surface2048 = surface2048.to(device, non_blocking=True)
                 points = points.to(device, non_blocking=True)
                 labels = labels.to(device, non_blocking=True)
-
                 output = model(surface2048, points)['logits']
 
 
@@ -108,7 +106,7 @@ def main():
                 # output = torch.cat([model(surface2048, grid[:, i*N:(i+1)*N])[0] for i in range(math.ceil(grid.shape[1]/N))], dim=1)
 
                 volume = output.view(density+1, density+1, density+1).permute(1, 0, 2).cpu().numpy()
-
+                breakpoint()
                 verts, faces = mcubes.marching_cubes(volume, 0)
                 verts *= gap
                 verts -= 1.

@@ -87,8 +87,8 @@ class ShapeNet(data.Dataset):
         self.surface_sampling = surface_sampling
 
         self.dataset_folder = dataset_folder
-        self.point_folder = os.path.join(self.dataset_folder, 'ShapeNetV2_point')
-        self.mesh_folder = os.path.join(self.dataset_folder, 'ShapeNetV2_watertight')
+        self.point_folder = os.path.join(self.dataset_folder, 'points')
+        self.mesh_folder = os.path.join(self.dataset_folder, 'surface')
 
         if categories is None:
             categories = os.listdir(self.point_folder)
@@ -100,6 +100,7 @@ class ShapeNet(data.Dataset):
         self.models = []
         for c_idx, c in enumerate(categories):
             subpath = os.path.join(self.point_folder, c)
+
             assert os.path.isdir(subpath)
 
             split_file = os.path.join(subpath, split + '.lst')

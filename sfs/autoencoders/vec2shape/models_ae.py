@@ -10,7 +10,7 @@ from einops import rearrange, repeat
 
 from torch_cluster import fps
 
-from timm.models.layers import DropPath
+from timm.layers import DropPath
 
 def exists(val):
     return val is not None

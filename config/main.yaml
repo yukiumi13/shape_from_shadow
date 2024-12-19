@@ -1,0 +1,43 @@
+defaults:
+  - dataset: re10k
+  - optional dataset/view_sampler_dataset_specific_config: ${dataset/view_sampler}_${dataset}
+  - model/encoder: costvolume
+  - model/decoder: splatting_cuda
+  - loss: [mse]
+
+wandb:
+  project: shape_from_shadow
+  entity: placeholder
+  name: placeholder
+  mode: disabled
+  id: null
+
+mode: train
+
+dataset:
+  overfit_to_scene: null
+
+
+checkpointing:
+  load: null
+  every_n_train_steps: 20000  # 5000
+  save_top_k: -1
+  pretrained_model: null
+  resume: true
+
+train:
+  depth_mode: null
+  extended_visualization: false
+  print_log_every_n_steps: 1
+
+
+seed: 111123
+
+trainer:
+  max_steps: -1
+  val_check_interval: 0.5
+  gradient_clip_val: 0.5
+  num_sanity_val_steps: 2
+  num_nodes: 1
+
+output_dir: null

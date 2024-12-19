@@ -38,9 +38,10 @@ def build_shape_surface_occupancy_dataset(split, args):
 
 if __name__ == '__main__':
     # m = ShapeNet('/home/zhanb0b/data/', 'train', transform=AxisScaling(), sampling=True, num_samples=1024, return_surface=True, surface_sampling=True)
-    m = ShapeNet('/home/zhanb0b/data/', 'train', transform=AxisScaling(), sampling=True, num_samples=1024, return_surface=True, surface_sampling=True)
+    m = ShapeNet('/mntdata/shapenet/sample', 'val', sampling=True, num_samples=1024, return_surface=True, surface_sampling=True)
     p, l, s, c = m[0]
-    print(p.shape, l.shape, s.shape, c)
+    print(p.shape, l.shape,  c)
     print(p.max(dim=0)[0], p.min(dim=0)[0])
+    print(l.sum() / l.numel())
     print(p[l==1].max(axis=0)[0], p[l==1].min(axis=0)[0])
     print(s.max(axis=0)[0], s.min(axis=0)[0])
