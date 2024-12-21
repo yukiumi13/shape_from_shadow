@@ -11,11 +11,11 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
-import raymarching
+from .. import raymarching
 from torch_efficient_distloss import eff_distloss
 
 from .utils import custom_meshgrid
-from meshutils import *
+from ..meshutils import *
 
 @torch.cuda.amp.autocast(enabled=False)
 def distort_loss(bins, weights):

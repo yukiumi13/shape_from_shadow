@@ -7,8 +7,9 @@ AUTO_ENCODERS = {
 }
 
 AutoEncoderCfg = Union[Shape2VecSetAutoEncoderCfg]
+ImplementedAutoEncoders = Union[Shape2VecSetAutoEncoder] # For Linting
 
-def get_autoencoder(cfg: AutoEncoderCfg) -> AutoEncoder:
+def get_autoencoder(cfg: AutoEncoderCfg) -> ImplementedAutoEncoders:
     autoencoder = AUTO_ENCODERS[cfg.name]
     autoencoder = autoencoder(cfg)
     return autoencoder

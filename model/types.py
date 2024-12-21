@@ -23,3 +23,15 @@ class OptimizationVariables(TypedDict, total=False):
 class OccVolume:
     grid: Float[Tensor, "*batch x y z coord"]
     occ_logits: Float[Tensor, "*batch x y z"] # logits \in (-inf, inf)
+
+# @dataclass
+# class RenderOutputs(TypedDict, total=False):
+#     shadow_map: Float[Tensor, "*batch x y"] # Top-view
+#     queries_coords: Float[Tensor, "*batch ray sample 3"] 
+#     occ_grid: Float[Tensor, "*batch ray sample"] # {0, 1}
+
+@dataclass
+class RenderOutputs(TypedDict, total=False):
+    shadow_map: Float[Tensor, "*batch x y"] # Top-view
+    queries_coords: Float[Tensor, "*batch ray sample 3"] 
+    occ_grid: Float[Tensor, "*batch ray sample"] # {0, 1} 

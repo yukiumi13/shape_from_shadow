@@ -11,6 +11,8 @@ from model.types import OptimizationVariables, OccVolume
 from .base_ae import AutoEncoder
 from .vec2shape.models_ae import make_s2vs_ae
 
+from utils.logger import std_logger, cyan
+
 
 @dataclass
 class Shape2VecSetAutoEncoderCfg:
@@ -26,8 +28,10 @@ class Shape2VecSetAutoEncoder(AutoEncoder[Shape2VecSetAutoEncoderCfg]):
         super().__init__(cfg)
         
         # Set up Shape2VecSet
-        # model_name = f"kl_d512_m{cfg.latent_num}_l{cfg.latent_dim}"
         self.auto_encoder = make_s2vs_ae(latent_num=cfg.latent_num, latent_dim=cfg.latent_dim)
+        
+        std_logger.info(f"Model: {cyan(f'kl_d512_m{cfg.latent_num}_l{cfg.latent_dim}')}")
+        std_logger.info(f"Pretrain: {cyan(cfg.pretrained_weight)}")
         
         if cfg.pretrained_weight is not None:
             ckpt = torch.load(cfg.pretrained_weight)
@@ -55,9 +59,9 @@ class Shape2VecSetAutoEncoder(AutoEncoder[Shape2VecSetAutoEncoderCfg]):
         
         # LatentSet-to-Logits
         latent_set = context['latent_set'] # (b, k, l)
-        occ_logits = self.auto_encoder.decode(latent_set, self.grid_queries)['logits']
+        occ_logits = self.auto_encoder.decode(latent_set, self.grid_queries)
         
         # Logits-to-OccVolume
-        occ_logits_volume = rearrange(occ_logits, "batch (x y z) -> batch y x z", x=self.density+1, y=self.density+1, z=self.density+1) # Axis swapping as Shape2VecSet/eval.py
-        xyz_grid = repeat(self.grid_queries, "() (x y z) coord -> b x y z coord", b = batch)
+        occ_logits_volume = rearrange(occ_logits, "batch (x y z) () -> batch x y z", x=self.density+1, y=self.density+1, z=self.density+1) # Axis swapping as Shape2VecSet/eval.py
+        xyz_grid = repeat(self.grid_queries, "() (x y z) coord -> b x y z coord", b = batch, x=self.density+1, y=self.density+1, z=self.density+1)
         return OccVolume(grid=xyz_grid, occ_logits=occ_logits_volume)

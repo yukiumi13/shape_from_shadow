@@ -3,7 +3,7 @@ from typing import Generic, TypeVar
 
 from torch import nn
 
-from sfs.types import OptimizationVariables, OccVolume
+from model.types import OptimizationVariables, OccVolume
 
 T = TypeVar("T")
 
