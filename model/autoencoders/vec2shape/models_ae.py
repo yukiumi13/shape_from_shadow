@@ -399,7 +399,7 @@ class KLAutoEncoder(nn.Module):
         o = self.decode(x, queries).squeeze(-1)
 
         # return o.squeeze(-1), kl
-        return {'logits': o, 'kl': kl}
+        return {'logits': o, 'kl': kl, 'latent_set': x}
 
 def create_autoencoder(dim=512, M=512, latent_dim=64, N=2048, determinisitc=False):
     if determinisitc:

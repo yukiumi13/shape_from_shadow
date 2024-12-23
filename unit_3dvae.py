@@ -1,4 +1,5 @@
 from model.autoencoders import get_autoencoder, Shape2VecSetAutoEncoderCfg
+from model.types import OptimizationVariables
 
 import mcubes
 import trimesh
@@ -21,15 +22,15 @@ surface = np.load(sample_surface_path)["points"]
 ind = np.random.default_rng().choice(
                     surface.shape[0], 2048, replace=False)
 surface2048 = torch.from_numpy(surface[ind][None]).cuda().float()
-output = shape2vecset_autoencoder.auto_encoder(surface2048, shape2vecset_autoencoder.grid_queries)['logits']
+latent = shape2vecset_autoencoder.auto_encoder(surface2048, shape2vecset_autoencoder.grid_queries)['latent_set']
+output = shape2vecset_autoencoder({'latent_set':latent})
 
-
-data = shape2vecset_autoencoder.grid_queries[output>0].cpu()
+data = output.grid[output.occ_logits>0].cpu()
+data = rearrange(data, "... c -> (...) c")
 fig = plt.figure()
 ax = fig.add_subplot(111, projection='3d')
 ax.scatter(data[:, 0], data[:, 1], data[:, 2], s=1)
 ax.set_xlabel('X')
 ax.set_ylabel('Y')
 ax.set_zlabel('Z')
-ax.set_axis_off()  
 plt.savefig('vae.png')
