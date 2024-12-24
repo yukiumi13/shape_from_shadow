@@ -27,6 +27,6 @@ class OccVolume:
 
 
 class RenderOutputs(TypedDict, total=False):
-    shadow_map: Float[Tensor, "*batch x y"]
-    queries_coords: Float[Tensor, "*batch ray sample 3"]
-    occ: Float[Tensor, "*batch ray sample"]
+    shadow_map: Float[Tensor, "*batch H W"]
+    queries_coords: Float[Tensor, "*batch H W D 3"] # rays are assumed to be [H, W]
+    occ: Float[Tensor, "*batch 1 H W D"]

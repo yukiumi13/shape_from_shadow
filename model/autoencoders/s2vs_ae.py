@@ -55,10 +55,6 @@ class Shape2VecSetAutoEncoder(AutoEncoder[Shape2VecSetAutoEncoderCfg]):
             del ckpt
             
         # Register Constants
-        # ! Grid convention here differs from the original Shape2VecSet
-        # ! Original Grid is generated with xy indexing, which means grid[i][j][k] = i * y + j * x + k * z.
-        # ! It is inconvenient for F.grid_sample, which assumes the input volume with the shape of X Y Z C and 
-        # ! the sampling grid is (x y z), i.e., grid[i][j][k] = i * x + j * y + k * z
         self.density = cfg.occ_resolution
         x = np.linspace(-1, 1, self.density)
         y = np.linspace(-1, 1, self.density)
@@ -81,10 +77,11 @@ class Shape2VecSetAutoEncoder(AutoEncoder[Shape2VecSetAutoEncoderCfg]):
         occ_logits = self.auto_encoder.decode(latent_set, self.grid_queries)
         
         # Logits-to-OccVolume
-        occ_logits_volume = rearrange(occ_logits, "batch (x y z) () -> batch x y z", x=self.density, y=self.density, z=self.density)
-        xyz_grid = repeat(self.grid_queries, "() (x y z) coord -> b x y z coord", b = batch, x=self.density, y=self.density, z=self.density)
+        # ! pytorch convention of 3D Volume is C, Z, Y, X
+        occ_logits_volume = rearrange(occ_logits, "batch (x y z) () -> batch z y x", x=self.density, y=self.density, z=self.density)
+        xyz_grid = repeat(self.grid_queries, "() (x y z) coord -> b z y x coord", b = batch, x=self.density, y=self.density, z=self.density)
         
-        occ_logits_volume, xyz_grid = self._postprocess(occ_logits_volume, xyz_grid)
+        # occ_logits_volume, xyz_grid = self._postprocess(occ_logits_volume, xyz_grid)
         
         return OccVolume(grid=xyz_grid, occ_logits=occ_logits_volume)
     
@@ -99,11 +96,12 @@ class Shape2VecSetAutoEncoder(AutoEncoder[Shape2VecSetAutoEncoderCfg]):
         """
         
         # Axis swapping and flipping: x y z -> x -z y 
-        occ_logits_volume = rearrange(occ_logits_volume, "... x y z -> ... x z y")
+        occ_logits_volume = rearrange(occ_logits_volume, "... z x y -> ... x z y")
         occ_logits_volume = torch.flip(occ_logits_volume, [-2])
-        xyz_grid = rearrange(xyz_grid, "... L W H xyz -> ... L H W xyz")
-        xyz_grid = torch.flip(xyz_grid, [-3])
-        xyz_grid = xyz_grid[..., [0, 2, 1]]
+        xyz_grid = rearrange(xyz_grid, "... z x y xyz -> ... x z y xyz")
+        xyz_grid = torch.flip(xyz_grid, [-4])
+        # Coord Transform
+        xyz_grid = xyz_grid[..., [1, 0, 2]]
         xyz_grid[..., -2:-1] *= -1
         
         return occ_logits_volume, xyz_grid

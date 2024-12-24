@@ -41,10 +41,10 @@ def gen_xy_from_aabb(aabb:Float[Tensor, "4"],
                     res:int = 128)-> Float[Tensor, "RES RES 2"]:
     device = aabb.device
     xmin, ymin, xmax, ymax = aabb.tolist()
-    x = np.linspace(xmin, xmax, res)
+    x = torch.linspace(xmin, xmax, res)
     y = torch.linspace(ymin, ymax, res)
-    xp, yp = np.meshgrid(x, y)
-    xy_plane = torch.tensor(rearrange([xp, yp], "i h w -> h w i"), device=device).float()
+    xp, yp = torch.meshgrid(y, x, indexing='xy')
+    xy_plane = rearrange([xp, yp], "i h w -> h w i").to(device)
     return xy_plane
 
 def sRT_from_pose_and_scale(pose: Float[Tensor, "*batch 7"], # [xyzw, translation] 

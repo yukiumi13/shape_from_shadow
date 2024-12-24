@@ -1,3 +1,13 @@
+# Copyright (c) 2024 Yang Li, Microsoft. All rights reserved.
+# MIT License.
+# 
+# --------------------------------------------------------
+#  Unit_test:
+#       - Ray Marching
+# --------------------------------------------------------
+# 
+# Created on Tue Dec 24 2024.
+
 from jaxtyping import install_import_hook
 
 with install_import_hook(
@@ -67,11 +77,11 @@ rays_d = ground_xyz - light_pos
 rays_d = rays_d / rays_d.norm(dim=-1, keepdim=True).contiguous()
 nears, fars = raymarching.near_far_from_aabb(rays_o, rays_d, torch.tensor([-1.,-1.,-1.,1.,1.,1.]).to(device), 0.05)
 n_alive = RENDER_RES ** 2
-n_step = 1
+n_step = 100
 rays_alive = torch.arange(n_alive, dtype=torch.int32).to(device)
 rays_t = nears.clone()
 xyzs, dirs, ts = raymarching.march_rays(RENDER_RES ** 2, 
-                                        100, 
+                                        n_step, 
                                         rays_alive, 
                                         rays_t, 
                                         rays_o, 

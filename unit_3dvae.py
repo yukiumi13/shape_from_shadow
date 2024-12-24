@@ -1,3 +1,14 @@
+# Copyright (c) 2024 Yang Li, Microsoft. All rights reserved.
+# MIT License.
+# 
+# --------------------------------------------------------
+# Unit_test:
+#       - Encode and Reconstruct 3D Meshes 
+# --------------------------------------------------------
+# 
+# Created on Tue Dec 24 2024.
+
+
 from model.autoencoders import get_autoencoder, Shape2VecSetAutoEncoderCfg
 from model.types import OptimizationVariables
 
@@ -29,7 +40,7 @@ data = output.grid[output.occ_logits>0].cpu()
 data = rearrange(data, "... c -> (...) c")
 fig = plt.figure()
 ax = fig.add_subplot(111, projection='3d')
-ax.scatter(data[:, 0], data[:, 1], data[:, 2], s=1)
+ax.scatter(data[:, 0], data[:, 1], data[:, 2], s=2)
 ax.set_xlabel('X')
 ax.set_ylabel('Y')
 ax.set_zlabel('Z')
