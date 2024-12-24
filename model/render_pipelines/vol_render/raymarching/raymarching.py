@@ -361,7 +361,6 @@ class _march_rays(Function):
             noises = torch.rand(n_alive, dtype=rays_o.dtype, device=rays_o.device)
         else:
             noises = torch.zeros(n_alive, dtype=rays_o.dtype, device=rays_o.device)
-
         get_backend().march_rays(n_alive, n_step, rays_alive, rays_t, rays_o, rays_d, bound, contract, dt_gamma, max_steps, C, H, density_bitfield, near, far, xyzs, dirs, ts, noises)
 
         return xyzs, dirs, ts

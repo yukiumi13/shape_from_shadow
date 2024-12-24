@@ -39,7 +39,7 @@ class ShadowRender(RenderPipeline[ShadowRenderCfg]):
                 scene_context: OptimizationVariables,
                 occ_volume: OccVolume,) -> RenderOutputs:
         
-        H, W, S = self.cfg.ground_res, self.cfg.ground_res, self.cfg.sample_per_ray
+        H, W, D = self.cfg.ground_res, self.cfg.ground_res, self.cfg.sample_per_ray
         
         # World Space Rays
         rays_o, rays_d = gen_plane_rays(scene_context["light_position"], self.plane_xyz)
@@ -55,8 +55,10 @@ class ShadowRender(RenderPipeline[ShadowRenderCfg]):
         # Efficient Ray-marching
         nears, fars = raymarching.near_far_from_aabb(rays_o, rays_d, torch.tensor(OBJECT_AABB).type_as(rays_o), 0.05)
         nears, fars = rearrange(nears, "... -> ... ()"), rearrange(fars, "... -> ... ()") 
-        ts = nears + torch.linspace(0,1,S).type_as(nears) * (fars - nears)
-        xyzs = rearrange(rays_o, "... i -> ... () i") + rearrange(ts , "...  -> ... ()") * rearrange(rays_d, "... i -> ... () i")
+        ts = nears + torch.linspace(0,1,D).type_as(nears) * (fars - nears)
+        xyzs = repeat(rays_o, "... (h w) i -> ... h w d i", h = H, w = W, d = D) + \
+                repeat(ts , "...  -> ... h w ()", h = H, w = W) * repeat(rays_d, "... (h w) i -> ... h w d i", h = H, w = W, d = D) # [B, H, W, D, 3]
         
-        return RenderOutputs(shadow_map=torch.zeros(1, H, W), queries_coords=xyzs, occ=torch.ones(1, H*W, S))
+        
+        return RenderOutputs(shadow_map=torch.zeros(1, H, W), queries_coords=xyzs, occ=torch.ones(1, H*W, D))
     

@@ -135,5 +135,5 @@ dmypy.json
 cookies.txt
 
 # 3D files
-*/*.ply
-*/*.obj
+*.ply
+*.obj
