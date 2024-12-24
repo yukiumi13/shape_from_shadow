@@ -35,6 +35,14 @@ class ShadowRender(RenderPipeline[ShadowRenderCfg]):
         self.register_buffer("plane_xyz", homogeneous(plane_xy, z=-1.))
         self.plane_xyz: Float[Tensor, "*batch h w 3"]
         
+    def _composite_sample_along_ray(self, rays_value:Float[Tensor, "*batch C H W D"]):
+        return rays_value.amax(dim=-1)
+    
+    def _sample_volume(self, 
+                        xyzs:Float[Tensor, "*batch H W D 3"],
+                        volume3d:Float[Tensor, "*batch C X Y Z"]):
+        return torch.nn.functional.grid_sample(volume3d, xyzs)
+        
     def forward(self, 
                 scene_context: OptimizationVariables,
                 occ_volume: OccVolume,) -> RenderOutputs:
@@ -58,7 +66,14 @@ class ShadowRender(RenderPipeline[ShadowRenderCfg]):
         ts = nears + torch.linspace(0,1,D).type_as(nears) * (fars - nears)
         xyzs = repeat(rays_o, "... (h w) i -> ... h w d i", h = H, w = W, d = D) + \
                 repeat(ts , "...  -> ... h w ()", h = H, w = W) * repeat(rays_d, "... (h w) i -> ... h w d i", h = H, w = W, d = D) # [B, H, W, D, 3]
-        
+              
+        # Query Occ
+        occ_vol = rearrange((occ_volume.occ_logits).sigmoid(), "... L W H -> ... () L W H")  
+        rays_occ = self._sample_volume(xyzs, occ_vol)
+        shadow_map = self._composite_sample_along_ray(rays_occ)
         
         return RenderOutputs(shadow_map=torch.zeros(1, H, W), queries_coords=xyzs, occ=torch.ones(1, H*W, D))
+    
+    
+
     

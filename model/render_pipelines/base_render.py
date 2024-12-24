@@ -24,3 +24,4 @@ class RenderPipeline(nn.Module, ABC, Generic[T]):
         occ_volume: OccVolume,
     ) -> RenderOutputs:
         pass
+
