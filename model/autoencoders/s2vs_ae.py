@@ -59,7 +59,7 @@ class Shape2VecSetAutoEncoder(AutoEncoder[Shape2VecSetAutoEncoderCfg]):
         x = np.linspace(-1, 1, self.density)
         y = np.linspace(-1, 1, self.density)
         z = np.linspace(-1, 1, self.density)
-        xv, yv, zv = np.meshgrid(x, y, z, indexing="ij")
+        xv, yv, zv = np.meshgrid(y, x, z, indexing="xy")
         
         grid = torch.from_numpy(np.stack([xv, yv, zv]).astype(
             np.float32)).view(3, -1).transpose(0, 1)[None]

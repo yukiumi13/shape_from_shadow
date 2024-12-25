@@ -736,9 +736,9 @@ class NeRFRenderer(nn.Module):
                             # cascading
                             for cas in range(self.cascade):
                                 bound = min(2 ** cas, self.bound)
-                                half_grid_size = bound / self.grid_size
+                                half_grid_size = bound / self.grid_size 
                                 # scale to current cascade's resolution
-                                cas_xyzs = xyzs * (bound - half_grid_size)
+                                cas_xyzs = xyzs * (bound - half_grid_size) 
                                 # add noise in [-hgs, hgs]
                                 cas_xyzs += (torch.rand_like(cas_xyzs) * 2 - 1) * half_grid_size
                                 # query density

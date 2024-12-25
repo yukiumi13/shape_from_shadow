@@ -40,7 +40,7 @@ class ShadowRender(RenderPipeline[ShadowRenderCfg]):
     
     def _sample_volume(self, 
                         xyzs:Float[Tensor, "*batch H W D 3"],
-                        volume3d:Float[Tensor, "*batch C Z X Y"])-> Float[Tensor, "*batch C H W D"]:
+                        volume3d:Float[Tensor, "*batch C Z Y X"])-> Float[Tensor, "*batch C H W D"]:
         return torch.nn.functional.grid_sample(volume3d, xyzs, align_corners=False)
         
     def forward(self, 
@@ -69,7 +69,7 @@ class ShadowRender(RenderPipeline[ShadowRenderCfg]):
                 repeat(ts , "... h w d -> ... h w d ()") * repeat(rays_d, "... (h w) i -> ... h w d i", h = H, w = W, d = D) # [B, H, W, D, 3]
               
         # Query Occ
-        occ_vol = rearrange((occ_volume.occ_logits).sigmoid(), "... L W H -> ... () L W H")  
+        occ_vol = rearrange((occ_volume.occ_logits).sigmoid(), "... Z Y X -> ... () Z Y X")  
         rays_occ = self._sample_volume(xyzs, occ_vol)
         ground_shadow = self._composite_sample_along_ray(rays_occ)
         shadow_map = rearrange(ground_shadow, "... () H W -> ... H W")
