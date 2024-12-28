@@ -32,8 +32,8 @@ class TrainerCfg:
 class RootCfg:
     wandb: dict
     mode: Literal["train", "test"]
-    autoencoder: AutoEncoderCfg
-    render_pipeline: Any
+    shape: AutoEncoderCfg
+    render: Any
     checkpointing: CheckpointingCfg
     trainer: TrainerCfg
     seed: int

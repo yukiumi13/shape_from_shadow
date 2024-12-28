@@ -24,9 +24,10 @@ class OccVolume:
     grid: Float[Tensor, "*batch x y z coord"]
     occ_logits: Float[Tensor, "*batch x y z"] # logits \in (-inf, inf)
 
-
-
 class RenderOutputs(TypedDict, total=False):
     shadow_map: Float[Tensor, "*batch H W"]
     queries_coords: Float[Tensor, "*batch H W D 3"] # rays are assumed to be [H, W]
     occ: Float[Tensor, "*batch 1 H W D"]
+    
+class ReconCues(TypedDict, total=False):
+    shadow_map: Float[Tensor, "*batch 1 H W"]
