@@ -5,14 +5,19 @@ from typing import Literal
 from torch import Tensor
 
 from .loss import Loss
-
+    
 @dataclass
 class LossMSECfg:
     name: Literal["mse"]
     weight: float = 1.0
 
 
-class LossMSE(Loss):
+@dataclass
+class LossMSECfgWrapper:
+    mse: LossMSECfg
+
+
+class LossMSE(Loss[LossMSECfg, LossMSECfgWrapper]):
     def forward(
         self,
         pred: Float[Tensor, "*batch C H W"],

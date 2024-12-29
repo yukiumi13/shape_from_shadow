@@ -1,2 +1,3 @@
-name: cross_entropy
-weight: 1.0
+ce:
+  name: cross_entropy
+  weight: 1.0

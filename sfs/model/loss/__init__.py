@@ -1,14 +1,15 @@
 from .loss import Loss
-from .loss_mse import LossMSE, LossMSECfg
-from .loss_ce import LossCrossEntropy, LossCrossEntropyCfg
+from .loss_mse import LossMSE, LossMSECfgWrapper
+from .loss_ce import LossCrossEntropy, LossCrossEnctropyCfgWrapper
 from typing import Union
 
 LOSSES = {
-    "mse": LossMSE,
-    "cross_entropy": LossCrossEntropyCfg
+    LossMSECfgWrapper: LossMSE,
+    LossMSECfgWrapper: LossCrossEntropy
 }
 
-LossCfg = Union[LossMSECfg , LossCrossEntropyCfg]
+LossCfgWrapper = Union[LossMSECfgWrapper , LossCrossEnctropyCfgWrapper]
 
-def get_losses(cfg: LossCfg) -> Loss:
-    return LOSSES[cfg.name](cfg)
+
+def get_losses(cfgs: list[LossCfgWrapper]) -> list[Loss]:
+    return [LOSSES[type(cfg)](cfg) for cfg in cfgs]

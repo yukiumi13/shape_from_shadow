@@ -13,7 +13,11 @@ class LossCrossEntropyCfg:
     weight: float = 1.0
 
 
-class LossCrossEntropy(Loss):
+@dataclass
+class LossCrossEnctropyCfgWrapper:
+    ce: LossCrossEntropyCfg
+
+class LossCrossEntropy(Loss[LossCrossEntropyCfg, LossCrossEnctropyCfgWrapper]):
     def forward(
         self,
         pred: Float[Tensor, "*batch C H W"],

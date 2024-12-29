@@ -10,10 +10,10 @@
 # --------------------------------------------------------
 # Created on Wed Dec 25 2024.
 
-from model.render_pipelines.vol_render import raymarching
-from model.render_pipelines.vol_render.nerf.renderer import near_far_from_aabb, custom_meshgrid
-from model.autoencoders import get_autoencoder, Shape2VecSetAutoEncoderCfg
-from model.types import OptimizationVariables
+from sfs.model.render_pipelines.vol_render import raymarching
+from sfs.model.render_pipelines.vol_render.nerf.renderer import near_far_from_aabb, custom_meshgrid
+from sfs.model.autoencoders import get_autoencoder, Shape2VecSetAutoEncoderCfg
+from sfs.model.types import OptimizationVariables
 
 import numpy as np
 import torch

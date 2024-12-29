@@ -4,7 +4,7 @@ from pathlib import Path
 
 from torch.utils.data import IterableDataset
 from PIL import Image
-from torchvision.transforms import ToTensor
+from torchvision.transforms import ToTensor, Resize
 
 
 
@@ -12,6 +12,7 @@ from torchvision.transforms import ToTensor
 class SingleImageDatasetCfg:
     name: Literal["single_image"]
     data_path: Path
+    size: list[int]
     
 class SingleImageDataset(IterableDataset):
     cfg: SingleImageDatasetCfg
@@ -31,6 +32,7 @@ class SingleImageDataset(IterableDataset):
             img_path = cfg.data_path
         
         img = Image.open(img_path).convert('L')
+        img = Resize()((self.cfg.size))
         self.img = ToTensor()(img)
 
     def __iter__(self):

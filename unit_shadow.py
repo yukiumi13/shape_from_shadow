@@ -14,18 +14,19 @@ with install_import_hook(
     ("src",),
     ("beartype", "beartype"),
 ):
-    from model.autoencoders import get_autoencoder, Shape2VecSetAutoEncoderCfg
-    from model.render_pipelines import get_renderer, ShadowRenderCfg
-    from model.types import OptimizationVariables
+    from sfs.model.autoencoders import get_autoencoder, Shape2VecSetAutoEncoderCfg
+    from sfs.model.render_pipelines import get_renderer, ShadowRenderCfg
+    from sfs.model.types import OptimizationVariables
 
-from utils.sys_monitor import PeakCUDAMemoryTracker
-from utils.logger import std_logger
-from utils.export import export_img
+from sfs.utils.sys_monitor import PeakCUDAMemoryTracker
+from sfs.utils.logger import std_logger
+from sfs.utils.export import export_img
 
 import numpy as np
 import torch
 import matplotlib.pyplot as plt
 from pathlib import Path
+from torchvision.utils import save_image
 
 
 
@@ -93,7 +94,9 @@ with PeakCUDAMemoryTracker() as tracker:
 ax_shadow.imshow(shadow_pred["shadow_map"][0].detach().cpu(), cmap='viridis', aspect='auto')
 view_func = lambda x: x.view_init(elev=45, azim=45)
 list(map(view_func, [ax_occ]))
-fig.savefig("shadow.png")
+fig.savefig("shadow_plot.png")
+
+save_image(shadow_pred["shadow_map"], "shadow.png")
 
 std_logger.info(f"Peak CUDA Memoy Allocated: {tracker.peak_memory / 1024**3:.2f} GB")
 

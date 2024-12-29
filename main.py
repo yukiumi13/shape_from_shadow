@@ -71,10 +71,9 @@ class SaveCodeCallback(Callback):
     config_name="main.yaml",
 )
 def train(cfg_dict: DictConfig):
-    breakpoint()
     cfg = load_typed_root_config(cfg_dict)
     set_cfg(cfg_dict)
-    breakpoint()
+
     # Set up the output directory.
     if cfg_dict.output_dir is None:
         output_dir = Path(cfg_dict.root_dir) / Path(
@@ -84,7 +83,7 @@ def train(cfg_dict: DictConfig):
         output_dir = Path(cfg_dict.root_dir) / Path(cfg_dict.output_dir)
         os.makedirs(output_dir, exist_ok=True)
     std_logger.info(cyan(f"Saving outputs to {output_dir}."))
-    latest_run = output_dir.parents[1] / "latest-run"
+    latest_run = output_dir.parents[-1] / "latest-run"
     os.system(f"rm {latest_run}")
     os.system(f"ln -s {output_dir} {latest_run}")
 

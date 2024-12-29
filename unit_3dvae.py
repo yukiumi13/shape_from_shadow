@@ -9,8 +9,8 @@
 # Created on Tue Dec 24 2024.
 
 
-from model.autoencoders import get_autoencoder, Shape2VecSetAutoEncoderCfg
-from model.types import OptimizationVariables
+from sfs.model.autoencoders import get_autoencoder, Shape2VecSetAutoEncoderCfg
+from sfs.model.types import OptimizationVariables
 
 import mcubes
 import trimesh

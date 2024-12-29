@@ -100,6 +100,7 @@ class LightningWrapper(LightningModule):
 
 
     def training_step(self, batch:ReconCues, batch_idx):
+        breakpoint()
         
         gt_shadow_map = batch["shadow_map"]
         

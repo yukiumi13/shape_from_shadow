@@ -40,6 +40,11 @@ train:
   depth_mode: null
   print_log_every_n_steps: 1
 
+# Test has not been implemented now
+test:
+  placeholder: placeholder
+
+
 # Optimizer Cfg
 optimizer:
   lr: 2.e-4

@@ -1,7 +1,7 @@
 from sfs.model.autoencoders import AutoEncoderCfg
 from sfs.model.render_pipelines import RenderPipelineCfg
 from sfs.model.pl_wrapper import OptimizerCfg, TrainCfg, TestCfg
-from sfs.model.loss import LossCfg
+from sfs.model.loss import LossCfgWrapper
 from sfs.datasets.data_module import DataLoaderCfg, DatasetCfg
 
 from dataclasses import dataclass
@@ -43,7 +43,7 @@ class RootCfg:
     model: ModelCfg
     optimizer: OptimizerCfg
     checkpointing: CheckpointingCfg
-    loss: List[LossCfg]
+    loss: list[LossCfgWrapper]
     trainer: TrainerCfg
     train: TrainCfg
     test: TestCfg
@@ -71,9 +71,21 @@ def load_typed_config(
     )
 
 
+def separate_loss_cfg_wrappers(joined: dict) -> list[LossCfgWrapper]:
+    # The dummy allows the union to be converted.
+    @dataclass
+    class Dummy:
+        dummy: LossCfgWrapper
+
+    return [
+        load_typed_config(DictConfig({"dummy": {k: v}}), Dummy).dummy
+        for k, v in joined.items()
+    ]
+
 
 def load_typed_root_config(cfg: DictConfig) -> RootCfg:
     return load_typed_config(
         cfg,
         RootCfg,
+        {list[LossCfgWrapper]: separate_loss_cfg_wrappers},
     )
