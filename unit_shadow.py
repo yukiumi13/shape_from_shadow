@@ -79,6 +79,7 @@ light_position = torch.randn(1,3)
 light_position[:, 2] = (light_position[:, 2] + 2 ) / 2
 
 # light_position = torch.tensor([[0.,0.,2.]])
+
 ax_occ.scatter(*light_position[0], color='r', s=1) 
 ax_occ.text(*light_position[0], 'Light', color='red') 
 
@@ -96,7 +97,7 @@ view_func = lambda x: x.view_init(elev=45, azim=45)
 list(map(view_func, [ax_occ]))
 fig.savefig("shadow_plot.png")
 
-save_image(shadow_pred["shadow_map"], "shadow.png")
+save_image(shadow_pred["shadow_map"], "assets/sample_shadow.png")
 
 std_logger.info(f"Peak CUDA Memoy Allocated: {tracker.peak_memory / 1024**3:.2f} GB")
 

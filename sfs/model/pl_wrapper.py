@@ -111,8 +111,7 @@ class LitWrapper(LightningModule):
         pred = self.render_pipeline(self.scene_context, occ_vol)
         
         pred_shadow_map = pred["shadow_map"] # [b, h, w]
-        
-        breakpoint()
+    
 
         self.log("train/IoU", compute_IoU(pred_shadow_map, gt_shadow_map))
 
