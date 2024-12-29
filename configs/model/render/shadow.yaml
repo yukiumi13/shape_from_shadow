@@ -1,0 +1,5 @@
+name: simple_shadow_render
+rays_sample: -1
+sample_per_ray: 128
+ground_aabb: [-1., -1., 1., 1.]
+ground_res: 128

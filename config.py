@@ -1,8 +1,12 @@
-from model.autoencoders import AutoEncoderCfg
+from sfs.model.autoencoders import AutoEncoderCfg
+from sfs.model.render_pipelines import RenderPipelineCfg
+from sfs.model.pl_wrapper import OptimizerCfg, TrainCfg, TestCfg
+from sfs.model.loss import LossCfg
+from sfs.datasets.data_module import DataLoaderCfg, DatasetCfg
 
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Literal, Optional, Type, TypeVar, Any
+from typing import Literal, Optional, Union, Type, TypeVar, List, Tuple
 
 from dacite import Config, from_dict
 from omegaconf import DictConfig, OmegaConf
@@ -13,17 +17,19 @@ class CheckpointingCfg:
     load: Optional[str]  # Not a path, since it could be something like wandb://...
     every_n_train_steps: int
     save_top_k: int
-    pretrained_model: Optional[str]
     resume: Optional[bool] = True
 
-
+@dataclass
+class ModelCfg:
+    shape: AutoEncoderCfg
+    render: RenderPipelineCfg
 
 
 @dataclass
 class TrainerCfg:
     max_steps: int
-    val_check_interval: int | float | None
-    gradient_clip_val: int | float | None
+    val_check_interval: Union[int , float, None]
+    gradient_clip_val: Union[int , float , None]
     num_sanity_val_steps: int
     num_nodes: Optional[int] = 1
 
@@ -32,15 +38,21 @@ class TrainerCfg:
 class RootCfg:
     wandb: dict
     mode: Literal["train", "test"]
-    shape: AutoEncoderCfg
-    render: Any
+    dataset: DatasetCfg
+    data_loader: DataLoaderCfg
+    model: ModelCfg
+    optimizer: OptimizerCfg
     checkpointing: CheckpointingCfg
+    loss: List[LossCfg]
     trainer: TrainerCfg
+    train: TrainCfg
+    test: TestCfg
     seed: int
 
 
 TYPE_HOOKS = {
     Path: Path,
+    Tuple: lambda x: tuple(x)
 }
 
 

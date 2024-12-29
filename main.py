@@ -29,23 +29,21 @@ from pytorch_lightning.callbacks import (
 from pytorch_lightning.loggers.wandb import WandbLogger
 
 
-import sys
-sys.path.append('src/model/encoder/dust3r')
-
 # Configure beartype and jaxtyping.
 with install_import_hook(
     ("src",),
     ("beartype", "beartype"),
 ):
-    from .config import load_typed_root_config
-    from .global_config import set_cfg
-    from .datasets import get_dataset
-    from model.loss import get_losses
-    from model.autoencoders import get_autoencoder
-    from model.render_pipelines import get_renderer
-    from model.pl_wrapper import LightningWrapper
-    from .utils.logger import std_logger, cyan
+    from config import load_typed_root_config
+    from global_config import set_cfg
+    from sfs.datasets.data_module import DataModule
+    from sfs.model.loss import get_losses
+    from sfs.model.autoencoders import get_autoencoder
+    from sfs.model.render_pipelines import get_renderer
+    from sfs.model.pl_wrapper import LightningWrapper
+    from sfs.utils.logger import std_logger, cyan
 
+# Backup Code Callback
 class SaveCodeCallback(Callback):
     def __init__(self, src_dir, dest_dir):
         self.src_dir = src_dir
@@ -69,13 +67,14 @@ class SaveCodeCallback(Callback):
 
 @hydra.main(
     version_base=None,
-    config_path="../config",
+    config_path="configs",
     config_name="main.yaml",
 )
 def train(cfg_dict: DictConfig):
+    breakpoint()
     cfg = load_typed_root_config(cfg_dict)
     set_cfg(cfg_dict)
-
+    breakpoint()
     # Set up the output directory.
     if cfg_dict.output_dir is None:
         output_dir = Path(cfg_dict.root_dir) / Path(
@@ -175,7 +174,11 @@ def train(cfg_dict: DictConfig):
     else:
         model_wrapper = LightningWrapper(**model_kwargs)
 
-    data_module = get_dataset(cfg.dataset)
+    data_module = DataModule(
+        cfg.dataset,
+        cfg.data_loader,
+        global_rank=trainer.global_rank,
+    )
 
     if cfg.mode == "train":
         trainer.fit(model_wrapper, datamodule=data_module, ckpt_path=(

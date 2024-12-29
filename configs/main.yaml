@@ -1,0 +1,69 @@
+defaults:
+  - dataset: single_image
+  - model/shape: shape2vecset
+  - model/render: shadow
+  - loss: [ce]
+
+wandb:
+  project: shape_from_shadow
+  entity: aurora_ly
+  name: placeholder
+  mode: disabled
+  id: null
+
+mode: train
+
+data_loader:
+  train:
+    num_workers: 1
+    persistent_workers: true
+    batch_size: 1
+    seed: 1234
+  test:
+    num_workers: 1
+    persistent_workers: false
+    batch_size: 1
+    seed: 2345
+  val:
+    num_workers: 1
+    persistent_workers: true
+    batch_size: 1
+    seed: 3456
+
+checkpointing:
+  load: null
+  every_n_train_steps: 1000  
+  save_top_k: -1
+  resume: true
+
+train:
+  depth_mode: null
+  print_log_every_n_steps: 1
+
+# Optimizer Cfg
+optimizer:
+  lr: 2.e-4
+  warm_up_steps: 2000
+  cosine_lr: true
+  opt_params: ["light_pos", "latent_set", "object_pose", "object_scale"]
+  lr_decay:
+    light_pos: 1.0
+    latent_set: 1.0
+    # We want the model learn more from latents intead of moving objects
+    object_pose: 0.1 
+    object_scale: 0.1
+  
+
+
+seed: 111123
+
+trainer:
+  max_steps: -1
+  val_check_interval: 0.5
+  gradient_clip_val: 0.5
+  num_sanity_val_steps: 2
+  num_nodes: 1
+
+# Outputs path
+root_dir : outputs
+output_dir: local

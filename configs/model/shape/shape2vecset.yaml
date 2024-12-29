@@ -1,0 +1,5 @@
+  name: shape2vecset
+  latent_num: 512
+  latent_dim: 8
+  occ_resolution: 128
+  pretrained_weight: /home/yangli/sfs/checkpoints/pretrained/ae_kl_d512_m512_l8.pth
