@@ -140,3 +140,6 @@ outputs/
 # 3D files
 *.ply
 *.obj
+
+# VSCode
+*.code-workspace
