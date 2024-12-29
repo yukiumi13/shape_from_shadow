@@ -135,7 +135,7 @@ dmypy.json
 cookies.txt
 
 # log
-outputs
+outputs/
 
 # 3D files
 *.ply

@@ -39,8 +39,8 @@ class OptimizerCfg:
     lr: float
     warm_up_steps: int
     cosine_lr: bool
-    opt_params: List[Literal["light_pos", "latent_set", "object_pose", "object_scale"]]
-    lr_decay: Dict[Literal["light_pos", "latent_set", "object_pose", "object_scale"], float]
+    opt_params: List[Literal["light_position", "latent_set", "object_pose", "object_scale"]]
+    lr_decay: Dict[Literal["light_position", "latent_set", "object_pose", "object_scale"], float]
     
 
 @dataclass
@@ -54,7 +54,7 @@ class TestCfg:
     placeholder: str = 'placeholder'
 
 
-class LightningWrapper(LightningModule):
+class LitWrapper(LightningModule):
     logger: Optional[WandbLogger]
     shape_ae: ImplementedAutoEncoders
     render_pipeline: ImplementedRenderPipelines
@@ -83,7 +83,6 @@ class LightningWrapper(LightningModule):
         self.losses = losses
         
         # Set up learnable Parameter
-
         self.scene_context = nn.ParameterDict({
             "light_position": nn.Parameter(torch.tensor([[0.,0.,2.]])),
             "latent_set": nn.Parameter(torch.randn(1,512,8)),
@@ -95,23 +94,25 @@ class LightningWrapper(LightningModule):
         self.benchmarker = Benchmarker()
         
         # Set up outpath
-        self.output_path:Path = get_cfg().root_dir / get_cfg().output_dir
+        self.output_path:Path = Path(get_cfg().root_dir) / get_cfg().output_dir
 
 
 
     def training_step(self, batch:ReconCues, batch_idx):
-        breakpoint()
+
         
         gt_shadow_map = batch["shadow_map"]
         
         # Pred shadow map
         # Generate Occ Volume
         occ_vol = self.shape_ae(self.scene_context)
-        
+
         # Render Top-view Shadow Map
         pred = self.render_pipeline(self.scene_context, occ_vol)
         
-        pred_shadow_map = pred["shadow_map"]
+        pred_shadow_map = pred["shadow_map"] # [b, h, w]
+        
+        breakpoint()
 
         self.log("train/IoU", compute_IoU(pred_shadow_map, gt_shadow_map))
 
@@ -157,7 +158,7 @@ class LightningWrapper(LightningModule):
                 # Render shadow map
                 pred = self.render_pipeline(self.scene_context, occ_vol)
         
-        pred_shadow_map = pred["shadow_map"]
+        pred_shadow_map = pred["shadow_map"] # [1, h, w]
 
         # Compute validation metrics.
         self.log("val/IoU", compute_IoU(pred_shadow_map, gt_shadow_map))
@@ -168,7 +169,7 @@ class LightningWrapper(LightningModule):
             "comparison",
             [comparison],
             step=self.global_step,
-            caption=batch["rendered shadow map v.s. gt shadow map"],
+            caption=["rendered shadow map v.s. gt shadow map"],
         )
         
         # Export Occ Volume

@@ -21,10 +21,9 @@ def gen_plane_rays(origin: Float[Tensor, "*batch 3"],
     
     H, W = target.shape[-3:-1]
     target = rearrange(target, "... h w xyz -> ... (h w) xyz")
-    
-    rays_o = repeat(origin, "... xyz -> ... N xyz", N = H * W).clone()
+    rays_o = repeat(origin, "... xyz -> ... N xyz", N = H * W)
     rays_d = target - rays_o
-    rays_d /= rays_d.norm(dim=-1, keepdim=True)
+    rays_d = rays_d / rays_d.norm(dim=-1, keepdim=True)
     return rays_o, rays_d
     
 def gen_plane_pts(canonical_xyz: Float[Tensor, "*batch H W 3"],
@@ -52,9 +51,13 @@ def sRT_from_pose_and_scale(pose: Float[Tensor, "*batch 7"], # [xyzw, translatio
                            scale: Float[Tensor, "*batch"]) -> Float[Tensor, "*batch 4 4"]:
     '''Rotaion->scale->translation.
         sRt = sR @ xyz + rt    '''
+        
+    
     R = unitquat_to_rotmat(pose[...,:4])
+    
     T = pose[..., 4:]
     sRT = torch.eye(4, device=R.device).expand(*R.shape[:-2], 4, 4).clone()
+    
     sR = scale * R
     sRT[...,:3,:3] = sR
     sRT[...,:3,3] = T

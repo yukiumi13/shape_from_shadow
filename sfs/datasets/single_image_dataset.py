@@ -1,6 +1,7 @@
 from dataclasses import dataclass
 from typing import Literal
 from pathlib import Path
+from einops import rearrange
 
 from torch.utils.data import IterableDataset
 from PIL import Image
@@ -32,12 +33,12 @@ class SingleImageDataset(IterableDataset):
             img_path = cfg.data_path
         
         img = Image.open(img_path).convert('L')
-        img = Resize()((self.cfg.size))
+        img = Resize(self.cfg.size)(img)
         self.img = ToTensor()(img)
 
     def __iter__(self):
 
-        yield {"shadow_map": self.img}
+        yield {"shadow_map": rearrange(self.img, "() h w -> h w")}
         
     def __len__(self):
         return 1

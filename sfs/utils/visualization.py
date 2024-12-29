@@ -20,15 +20,16 @@ def visualize_pred_gt_comparison(
 ):
     H, W = pred.shape[1:]
     
-    comp = make_grid([pred, gt], nrow=1, ncol=2).cpu().numpy()
+    comp = make_grid([pred, gt], nrow=1).cpu().numpy()
     # comp = rearrange([ray_pred, ray_gt], "n c h w -> c h (n w)").cpu().numpy()
     
-    fig, ax = plt.figure(figsize=(10, 20))
-    ax.imshow(comp)
+    fig, ax = plt.subplots(figsize=(10, 20))
+    ax.imshow(rearrange(comp, "c h w -> h w c"))
     ax.axis('off')
-    ax.text(0.25, -0.025, 'Pred', fontsize=20, va='center', ha='center', transform=ax.transAxes)
-    ax.text(0.75, -0.025, 'GT', fontsize=20, va='center', ha='center', transform=ax.transAxes)
-    ax.set_title('Comparison')
-    ax.set_axi
+
+    fig.text(0.25, -0.025, 'Pred', fontsize=20, va='center', ha='center', transform=ax.transAxes)
+    fig.text(0.75, -0.025, 'GT', fontsize=20, va='center', ha='center', transform=ax.transAxes)
+    fig.suptitle('Comparison')
     
     return fig
+    

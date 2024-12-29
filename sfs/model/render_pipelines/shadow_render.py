@@ -48,10 +48,10 @@ class ShadowRender(RenderPipeline[ShadowRenderCfg]):
                 occ_volume: OccVolume,)-> RenderOutputs:
         
         H, W, D = self.cfg.ground_res, self.cfg.ground_res, self.cfg.sample_per_ray
-        
+
         # World Space Rays
         rays_o, rays_d = gen_plane_rays(scene_context["light_position"], self.plane_xyz)
-        
+
         # World Space to Canonical Space (Object)
         object_pose = scene_context["object_pose"]
         object_scale = scene_context["object_scale"]
@@ -61,9 +61,10 @@ class ShadowRender(RenderPipeline[ShadowRenderCfg]):
         rays_d = einsum(rot_w2o, rays_d, "... i j, ... n j -> ... n i") 
 
         # Efficient Ray-marching
-        nears, fars = raymarching.near_far_from_aabb(rays_o, rays_d, torch.tensor(OBJECT_AABB).type_as(rays_o), 0.05)
-        nears, fars = rearrange(nears, "... (h w) -> ... h w ()", h = H, w = W), rearrange(fars, "... (h w) -> ... h w ()", h = H, w = W) 
-        ts = nears + torch.linspace(0,1,D).type_as(nears) * (fars - nears)
+        with torch.no_grad():
+            nears, fars = raymarching.near_far_from_aabb(rays_o, rays_d, torch.tensor(OBJECT_AABB).type_as(rays_o), 0.05)
+            nears, fars = rearrange(nears, "... (h w) -> ... h w ()", h = H, w = W), rearrange(fars, "... (h w) -> ... h w ()", h = H, w = W) 
+            ts = nears + torch.linspace(0,1,D).type_as(nears) * (fars - nears)
 
         xyzs = repeat(rays_o, "... (h w) i -> ... h w d i", h = H, w = W, d = D) + \
                 repeat(ts , "... h w d -> ... h w d ()") * repeat(rays_d, "... (h w) i -> ... h w d i", h = H, w = W, d = D) # [B, H, W, D, 3]
@@ -73,7 +74,6 @@ class ShadowRender(RenderPipeline[ShadowRenderCfg]):
         rays_occ = self._sample_volume(xyzs, occ_vol)
         ground_shadow = self._composite_sample_along_ray(rays_occ)
         shadow_map = rearrange(ground_shadow, "... () H W -> ... H W")
-        
         
         return RenderOutputs(shadow_map=shadow_map, queries_coords=xyzs, occ=rays_occ)
     

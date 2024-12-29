@@ -7,8 +7,9 @@ defaults:
 wandb:
   project: shape_from_shadow
   entity: aurora_ly
-  name: placeholder
-  mode: disabled
+  name: demo
+  tags: [res:128, lr:1.0, lr_decay:true, loss:bce]
+  # mode: online
   id: null
 
 mode: train
@@ -32,7 +33,7 @@ data_loader:
 
 checkpointing:
   load: null
-  every_n_train_steps: 1000  
+  every_n_train_steps: 5000  
   save_top_k: -1
   resume: true
 
@@ -47,12 +48,12 @@ test:
 
 # Optimizer Cfg
 optimizer:
-  lr: 2.e-4
+  lr: 1.0
   warm_up_steps: 2000
   cosine_lr: true
-  opt_params: ["light_pos", "latent_set", "object_pose", "object_scale"]
+  opt_params: ["light_position", "latent_set", "object_pose", "object_scale"]
   lr_decay:
-    light_pos: 1.0
+    light_position: 1.0
     latent_set: 1.0
     # We want the model learn more from latents intead of moving objects
     object_pose: 0.1 
@@ -63,8 +64,8 @@ optimizer:
 seed: 111123
 
 trainer:
-  max_steps: -1
-  val_check_interval: 0.5
+  max_steps: 10_000
+  val_check_interval: 1000
   gradient_clip_val: 0.5
   num_sanity_val_steps: 2
   num_nodes: 1

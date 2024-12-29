@@ -40,7 +40,7 @@ with install_import_hook(
     from sfs.model.loss import get_losses
     from sfs.model.autoencoders import get_autoencoder
     from sfs.model.render_pipelines import get_renderer
-    from sfs.model.pl_wrapper import LightningWrapper
+    from sfs.model.pl_wrapper import LitWrapper
     from sfs.utils.logger import std_logger, cyan
 
 # Backup Code Callback
@@ -83,7 +83,7 @@ def train(cfg_dict: DictConfig):
         output_dir = Path(cfg_dict.root_dir) / Path(cfg_dict.output_dir)
         os.makedirs(output_dir, exist_ok=True)
     std_logger.info(cyan(f"Saving outputs to {output_dir}."))
-    latest_run = output_dir.parents[-1] / "latest-run"
+    latest_run = output_dir.parents[0] / "latest-run"
     os.system(f"rm {latest_run}")
     os.system(f"ln -s {output_dir} {latest_run}")
 
@@ -138,6 +138,7 @@ def train(cfg_dict: DictConfig):
         strategy="ddp" if torch.cuda.device_count() > 1 else "auto",
         callbacks=callbacks,
         val_check_interval=cfg.trainer.val_check_interval,
+        check_val_every_n_epoch=None,
         enable_progress_bar= False,
         gradient_clip_val=cfg.trainer.gradient_clip_val,
         max_steps=cfg.trainer.max_steps,
@@ -146,16 +147,13 @@ def train(cfg_dict: DictConfig):
     torch.manual_seed(cfg_dict.seed + trainer.global_rank)
 
     shape_autoencoder = get_autoencoder(cfg.model.shape)
-    losses = []
-    for loss_cfg in cfg.loss:
-        losses.append(get_losses(loss_cfg))
 
     model_kwargs = {
         "optimizer_cfg": cfg.optimizer,
         "train_cfg": cfg.train,
         "shape_ae": shape_autoencoder,
         "render_pipeline": get_renderer(cfg.model.render),
-        "losses":losses,
+        "losses":get_losses(cfg.loss),
     }
 
     checkpoint_path = cfg.checkpointing.load
@@ -163,15 +161,15 @@ def train(cfg_dict: DictConfig):
     if cfg.mode == "train" and checkpoint_path is not None and not cfg.checkpointing.resume:
         # Just load model weights, without optimizer states
         # e.g., fine-tune from the released weights on other datasets
-        model_wrapper = LightningWrapper.load_from_checkpoint(
+        model_wrapper = LitWrapper.load_from_checkpoint(
             checkpoint_path, **model_kwargs, strict=True)
         std_logger.info(cyan(f" Loaded weigths from {checkpoint_path}."))
     elif checkpoint_path is not None:
-        model_wrapper = LightningWrapper.load_from_checkpoint(
+        model_wrapper = LitWrapper.load_from_checkpoint(
             checkpoint_path, **model_kwargs, strict=False)
         
     else:
-        model_wrapper = LightningWrapper(**model_kwargs)
+        model_wrapper = LitWrapper(**model_kwargs)
 
     data_module = DataModule(
         cfg.dataset,

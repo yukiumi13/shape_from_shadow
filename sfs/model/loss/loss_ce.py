@@ -14,14 +14,14 @@ class LossCrossEntropyCfg:
 
 
 @dataclass
-class LossCrossEnctropyCfgWrapper:
+class LossCrossEntropyCfgWrapper:
     ce: LossCrossEntropyCfg
 
-class LossCrossEntropy(Loss[LossCrossEntropyCfg, LossCrossEnctropyCfgWrapper]):
+class LossCrossEntropy(Loss[LossCrossEntropyCfg, LossCrossEntropyCfgWrapper]):
     def forward(
         self,
         pred: Float[Tensor, "*batch C H W"],
         gt: Float[Tensor, "*batch C H W"]
     ) -> Float[Tensor, ""]:
-        delta = F.cross_entropy(pred, gt)
+        delta = F.binary_cross_entropy(pred, gt)
         return self.cfg.weight * delta.mean()
